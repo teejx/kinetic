@@ -6,11 +6,15 @@ import {
   DeviceMobile,
   SignOut,
   ShieldCheck,
-  User
+  User,
+  Trash,
+  WarningCircle,
+  X
 } from '@phosphor-icons/react';
 import { useFitness } from '../../context/FitnessContext';
 import { UserProfile } from '../../types';
 import { SignOutConfirmModal } from '../SignOutConfirmModal';
+import { purgeAllAppData } from '../../lib/storage';
 
 export const ProfileView: React.FC = () => {
   const {
@@ -24,6 +28,7 @@ export const ProfileView: React.FC = () => {
   } = useFitness();
 
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   if (!activeUser) {
     return null;
@@ -313,6 +318,22 @@ export const ProfileView: React.FC = () => {
         </button>
       </div>
 
+      {/* Danger Zone: Factory Reset */}
+      <div className="p-4 rounded-3xl bg-surface border border-rose-500/20 flex items-center justify-between gap-3">
+        <div>
+          <h4 className="font-bold text-xs text-rose-400">Database & Account Reset</h4>
+          <p className="text-[11px] text-gray-400">
+            Wipe all local athletes, workout logs, PRs, and cached sessions.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowResetConfirm(true)}
+          className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold font-mono transition-colors shrink-0"
+        >
+          Reset All
+        </button>
+      </div>
+
       {/* Account Sign Out Card */}
       <div className="p-4 rounded-3xl bg-surface border border-surface-border space-y-2">
         <button
@@ -335,6 +356,49 @@ export const ProfileView: React.FC = () => {
         athleteName={cleanAthleteName}
         athleteHandle={activeUser.handle}
       />
+
+      {/* Database Reset Confirmation Modal */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+          <div
+            className="absolute inset-0"
+            onClick={() => setShowResetConfirm(false)}
+          />
+          <div className="relative z-10 w-full max-w-sm rounded-[2rem] p-1.5 bg-gradient-to-b from-rose-950/40 to-surface-raised/40 border border-rose-500/30 shadow-2xl">
+            <div className="bg-surface rounded-[calc(2rem-6px)] p-6 space-y-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto shadow-tactile">
+                <Trash size={28} weight="bold" />
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="font-extrabold text-base text-white">Reset All App Data?</h3>
+                <p className="text-xs text-gray-400 leading-relaxed px-2">
+                  This will permanently delete all local accounts, workout logs, PRs, and custom routines stored on this device. The app will return to a completely fresh state.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowResetConfirm(false)}
+                  className="py-3 rounded-xl bg-surface-raised hover:bg-neutral-800 border border-surface-border text-xs font-bold uppercase tracking-wider text-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    purgeAllAppData();
+                    window.location.reload();
+                  }}
+                  className="py-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-black font-extrabold text-xs uppercase tracking-wider transition-all shadow-tactile flex items-center justify-center gap-1.5"
+                >
+                  <Trash size={15} weight="bold" />
+                  <span>Delete & Reset</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

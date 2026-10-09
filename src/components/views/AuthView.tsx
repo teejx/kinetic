@@ -16,6 +16,7 @@ import {
 } from '@phosphor-icons/react';
 import { useFitness } from '../../context/FitnessContext';
 import { UserProfile } from '../../types';
+import { purgeAllAppData } from '../../lib/storage';
 
 interface PasswordCriteria {
   hasLength: boolean;
@@ -545,14 +546,27 @@ export const AuthView: React.FC = () => {
           </button>
         </form>
 
-        {/* Guest / Offline Mode Fallback */}
-        <div className="mt-5 pt-4 border-t border-surface-border/60 text-center">
+        {/* Guest / Offline Mode Fallback & Reset Data */}
+        <div className="mt-5 pt-4 border-t border-surface-border/60 text-center space-y-2">
           <button
             type="button"
             onClick={() => setIsGuestModalOpen(true)}
-            className="text-xs text-gray-400 hover:text-white transition-colors underline font-medium"
+            className="text-xs text-gray-400 hover:text-white transition-colors underline font-medium block mx-auto"
           >
             Continue as Offline Guest (Set Name & Train)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm('Reset all local accounts, sessions, and data on this device?')) {
+                purgeAllAppData();
+                window.location.reload();
+              }
+            }}
+            className="text-[10px] text-gray-600 hover:text-rose-400 font-mono transition-colors block mx-auto pt-1"
+          >
+            Wipe & Reset Local Accounts Database
           </button>
         </div>
       </motion.div>

@@ -163,3 +163,20 @@ export function clearSyncQueue(): void {
   localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify([]));
 }
 
+// Complete factory reset: deletes all local accounts, sessions, workouts, and cached data
+export function purgeAllAppData(): void {
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('kinetic_') || key.startsWith('firebase:'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+    sessionStorage.clear();
+  } catch (e) {
+    localStorage.clear();
+  }
+}
+
