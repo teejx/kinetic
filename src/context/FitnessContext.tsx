@@ -282,30 +282,23 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
       return { success: true };
     }
 
-    // Local authentication fallback (Offline-first & zero-configuration)
+    // Local authentication (Offline-first mode)
     const existing = getSavedProfile();
     if (existing) {
-      setCurrentUser(existing);
-      return { success: true };
+      const targetName = email.split('@')[0].toLowerCase().trim();
+      const existingName = existing.name.toLowerCase().trim();
+      const existingHandle = existing.handle.replace('@', '').toLowerCase().trim();
+
+      if (existingName === targetName || existingHandle === targetName || existing.id === email.trim()) {
+        setCurrentUser(existing);
+        return { success: true };
+      }
     }
 
-    const defaultName = email.split('@')[0] || 'Athlete';
-    const profile: UserProfile = {
-      id: `local-${Date.now()}`,
-      name: defaultName,
-      handle: `@${defaultName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-      avatarBg: 'bg-volt',
-      bio: 'Trained athlete.',
-      trainingGoal: 'Strength',
-      weightUnit: 'kg',
-      bodyWeight: 75,
-      streakDays: 1,
-      joinedDate: new Date().toISOString().split('T')[0],
+    return {
+      success: false,
+      error: 'Account not found. Please click "Create Account" to register first.',
     };
-
-    saveProfile(profile);
-    setCurrentUser(profile);
-    return { success: true };
   }, []);
 
   const register = useCallback(async (
